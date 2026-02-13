@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MarkDoneButton } from "./mark-done-button";
 import { AiSummaryButton } from "./ai-summary-button";
+import { SlippageReasonForm } from "./slippage-reason-form";
 
 export default async function CommitmentDetailPage({
   params,
@@ -97,6 +98,9 @@ export default async function CommitmentDetailPage({
             </p>
             {slippage.reason && <p className="text-sm">{slippage.reason}</p>}
           </CardHeader>
+          <CardContent>
+            {!slippage.reason && <SlippageReasonForm commitmentId={id} />}
+          </CardContent>
         </Card>
       )}
 

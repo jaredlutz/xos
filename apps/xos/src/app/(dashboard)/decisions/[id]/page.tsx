@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
-import { decisions, decisionOptions, commitments } from "@/lib/db/schema";
+import { decisions, decisionOptions, commitments, systems } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { SelectOptionForm } from "./select-option-form";
@@ -20,18 +20,27 @@ export default async function DecisionDetailPage({
     .where(eq(decisionOptions.decisionId, id));
 
   let commitmentTitle: string | null = null;
+  let systemName: string | null = null;
   if (decision.commitmentId) {
     const [c] = await db
-      .select({ title: commitments.title })
+      .select({ title: commitments.title, systemId: commitments.systemId })
       .from(commitments)
       .where(eq(commitments.id, decision.commitmentId))
       .limit(1);
     commitmentTitle = c?.title ?? null;
+    if (c?.systemId) {
+      const [s] = await db.select({ name: systems.name }).from(systems).where(eq(systems.id, c.systemId)).limit(1);
+      systemName = s?.name ?? null;
+    }
   }
+  const ageMs = Date.now() - new Date(decision.createdAt).getTime();
+  const ageDays = Math.floor(ageMs / (24 * 60 * 60 * 1000));
+  const ageStr = ageDays > 0 ? `${ageDays} day${ageDays !== 1 ? "s" : ""}` : "Today";
 
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold">{decision.title}</h1>
+      <p className="text-sm text-muted-foreground">Age: {ageStr}</p>
 
       <Card>
         <CardHeader>
@@ -39,6 +48,9 @@ export default async function DecisionDetailPage({
           <p className="text-sm text-muted-foreground whitespace-pre-wrap">{decision.context}</p>
           {commitmentTitle && (
             <p className="text-xs text-muted-foreground">Linked commitment: {commitmentTitle}</p>
+          )}
+          {systemName && (
+            <p className="text-xs text-muted-foreground">System: {systemName}</p>
           )}
         </CardHeader>
       </Card>

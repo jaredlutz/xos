@@ -7,6 +7,7 @@ import {
   integer,
   boolean,
   jsonb,
+  numeric,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { pgEnum } from "drizzle-orm/pg-core";
@@ -52,6 +53,17 @@ export const activityEntityTypeEnum = pgEnum("activity_entity_type", [
   "SLIPPAGE",
   "DECISION",
 ]);
+
+export const signalTypeEnum = pgEnum("signal_type", [
+  "MONEY_STUCK",
+  "MOMENTUM_RISK",
+  "COMPLIANCE_RISK",
+  "SYSTEM_RISK",
+  "PIPELINE_RISK",
+]);
+export const signalSeverityEnum = pgEnum("signal_severity", ["LOW", "MEDIUM", "HIGH"]);
+export const signalStatusEnum = pgEnum("signal_status", ["OPEN", "ACKED", "RESOLVED"]);
+export const ceoActionStatusEnum = pgEnum("ceo_action_status", ["OPEN", "DONE"]);
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -190,6 +202,66 @@ export const activityLog = pgTable("activity_log", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const kpiMetrics = pgTable("kpi_metrics", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  kpiKey: text("kpi_key").notNull().unique(),
+  label: text("label"),
+  valueNum: numeric("value_num"),
+  valueText: text("value_text"),
+  deltaNum: numeric("delta_num"),
+  period: text("period"),
+  systemId: uuid("system_id").references(() => systems.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const signals = pgTable("signals", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  signalType: signalTypeEnum("signal_type").notNull(),
+  title: text("title").notNull(),
+  description: text("description"),
+  severity: signalSeverityEnum("severity").notNull(),
+  relatedCommitmentId: uuid("related_commitment_id").references(() => commitments.id, {
+    onDelete: "set null",
+  }),
+  relatedDecisionId: uuid("related_decision_id").references(() => decisions.id, {
+    onDelete: "set null",
+  }),
+  relatedSystemId: uuid("related_system_id").references(() => systems.id, {
+    onDelete: "set null",
+  }),
+  status: signalStatusEnum("status").notNull().default("OPEN"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const ceoActions = pgTable("ceo_actions", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  whyItMatters: text("why_it_matters"),
+  impactLabel: text("impact_label"),
+  dueBy: timestamp("due_by", { withTimezone: true }),
+  ownerId: uuid("owner_id").references(() => owners.id, { onDelete: "set null" }),
+  relatedDecisionId: uuid("related_decision_id").references(() => decisions.id, {
+    onDelete: "set null",
+  }),
+  relatedCommitmentId: uuid("related_commitment_id").references(() => commitments.id, {
+    onDelete: "set null",
+  }),
+  actionButtons: jsonb("action_buttons"),
+  status: ceoActionStatusEnum("status").notNull().default("OPEN"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const userPrefs = pgTable("user_prefs", {
+  userId: uuid("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  ceoMode: boolean("ceo_mode").notNull().default(false),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Team = typeof teams.$inferSelect;
@@ -201,3 +273,7 @@ export type Slippage = typeof slippages.$inferSelect;
 export type Decision = typeof decisions.$inferSelect;
 export type DecisionOption = typeof decisionOptions.$inferSelect;
 export type ActivityLog = typeof activityLog.$inferSelect;
+export type KpiMetric = typeof kpiMetrics.$inferSelect;
+export type Signal = typeof signals.$inferSelect;
+export type CeoAction = typeof ceoActions.$inferSelect;
+export type UserPrefs = typeof userPrefs.$inferSelect;

@@ -1,6 +1,13 @@
 # xOS — CEO Operating System
 
-Decision-first operating layer: **Commitments → Proof → Slippage → Decision Queue**.
+Decision-first operating layer: **Commitments → Proof → Slippage → Decision Queue**, with a dual-mode **Command Center** (operations view) and **Hyperfocus** (decision-first view).
+
+## CEO Mode (Command Center vs Hyperfocus)
+
+- **CEO Mode OFF — Command Center**: Operations-focused dashboard with CEO Actions Today, Live Scoreboard (KPIs), Momentum Risks (signals), Proof Inbox (for CEO/EXEC), and Operating Rhythm (L10, top commitments).
+- **CEO Mode ON — Hyperfocus**: Minimalist view with a “You have X decisions to clear” banner, Decision Queue (≤7), Slippage card, Proof Inbox, and a compact Commitments snapshot. KPIs and signals are hidden.
+
+The CEO mode toggle is persisted in the database (`user_prefs.ceo_mode`) and synced to localStorage for instant UI. Use the toggle in the layout to switch; the dashboard re-renders accordingly.
 
 ## Stack
 
@@ -32,6 +39,8 @@ Decision-first operating layer: **Commitments → Proof → Slippage → Decisio
    bun run db:push
    bun run seed
    ```
+
+   Seed creates demo data: systems, owners, commitments (including one past-due for slippage), a “Greenlight SMS campaign?” decision, KPI metrics, signals, CEO actions (one linked to that decision), and optional CEO user prefs with CEO mode OFF. Re-running `bun run seed` is idempotent for commitments and decisions; it replaces KPI values, and replaces all signals and CEO actions with the demo set.
 
 4. **Run**
 
@@ -94,6 +103,13 @@ Signature: `HMAC-SHA256(secret, rawRequestBody)` encoded as hex.
 - Webhooks require valid `x-xos-signature` (HMAC SHA256 per system secret).
 - Cron route protected by `CRON_SECRET`.
 - Roles: CEO (full + decide), EXEC (view + verify proof), OWNER (own commitments + proof + slippage reason), VIEWER (read-only).
+- **Admin** (KPIs, Signals, CEO Actions) is restricted to CEO and EXEC via `requireRole(['CEO','EXEC'])` in `/admin` layout.
+
+## Admin (CEO/EXEC only)
+
+- **KPIs** (`/admin/kpis`): Create and edit KPI metrics (key, label, value, delta, period). Live Scoreboard on the Command Center uses fixed keys (e.g. `capital.pipeline_usd`, `marketing.forms_today`).
+- **Signals** (`/admin/signals`): Create and edit signals (type, severity, title, description, related commitment/decision/system). Momentum Risks card shows OPEN signals.
+- **CEO Actions** (`/admin/ceo-actions`): Create and edit CEO actions (title, why it matters, impact, due date, owner, action buttons, linked decision/commitment). CEO Actions Today card shows OPEN actions.
 
 ## Tests
 

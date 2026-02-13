@@ -17,6 +17,7 @@ export function SelectOptionForm({
   const [loading, setLoading] = useState<string | null>(null);
 
   async function select(optionId: string) {
+    if (!confirm("Confirm decision? This will record your selection and update the decision status.")) return;
     setLoading(optionId);
     try {
       const res = await fetch("/api/admin/decision/select-option", {

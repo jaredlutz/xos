@@ -1,0 +1,14 @@
+{
+  "name": "xos-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "cd apps/xos && bun run dev",
+    "build": "cd apps/xos && bun run build",
+    "start": "cd apps/xos && bun run start",
+    "lint": "cd apps/xos && bun run lint",
+    "test": "cd apps/xos && bun run test",
+    "db:push": "cd apps/xos && bun run db:push",
+    "db:studio": "cd apps/xos && bun run db:studio",
+    "seed": "cd apps/xos && bun run seed"
+  }
+}
