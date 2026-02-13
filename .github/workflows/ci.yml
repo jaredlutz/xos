@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+defaults:
+  run:
+    working-directory: apps/xos
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Test
+        run: bun run test
+        env:
+          WORKOS_CLIENT_ID: ci
+          WORKOS_API_KEY: ci
+          WORKOS_COOKIE_PASSWORD: 32-char-secret-for-ci-session-encrypt
+          WORKOS_REDIRECT_URI: http://localhost:3000/callback
+          CRON_SECRET: ci
+          CEO_EMAIL: ceo@example.com
+
+      - name: Build
+        run: bun run build
+        env:
+          DATABASE_URL: postgresql://ci:ci@localhost:5432/ci?sslmode=disable
+          WORKOS_CLIENT_ID: ci
+          WORKOS_API_KEY: ci
+          WORKOS_COOKIE_PASSWORD: 32-char-secret-for-ci-session-encrypt
+          WORKOS_REDIRECT_URI: http://localhost:3000/callback
+          CRON_SECRET: ci

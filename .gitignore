@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Env (never commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Next.js
+.next/
+out/
+
+# Build / tooling
+*.tsbuildinfo
+.turbo
+.vercel
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# Test
+coverage/
+
+# Logs
+*.log
+npm-debug.log*

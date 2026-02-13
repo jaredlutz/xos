@@ -1,0 +1,45 @@
+{
+  "name": "xos",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "seed": "bun run scripts/seed.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.1.0",
+    "@workos-inc/authkit-nextjs": "^0.8.0",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.36.0",
+    "lucide-react": "^0.460.0",
+    "next": "14.2.18",
+    "postgres": "^3.4.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.5",
+    "@types/node": "^22.9.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "drizzle-kit": "^0.28.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.18",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.6"
+  }
+}
